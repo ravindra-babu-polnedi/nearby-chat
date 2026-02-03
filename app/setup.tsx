@@ -41,6 +41,13 @@ export default function SetupScreen() {
             <Text style={setupStyles.subtitle}>
               Configure your matching preferences
             </Text>
+            <Pressable onPress={() => router.push("/recent")}>
+              <Text
+                style={{ color: "#10b981", marginTop: 8, fontWeight: "600" }}
+              >
+                Go to Recent Chats
+              </Text>
+            </Pressable>
           </View>
 
           {/* Settings Cards */}

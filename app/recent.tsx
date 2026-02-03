@@ -5,11 +5,12 @@ import {
     FlatList,
     Pressable,
     RefreshControl,
-    SafeAreaView,
     StyleSheet,
     Text,
     View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { BACKEND_URL } from "./utils/constants";
 
 type RecentChat = {
   chatId: string;
@@ -27,7 +28,7 @@ export default function RecentChatsScreen() {
   async function loadChats() {
     try {
       setLoading(true);
-      const res = await fetch("http://192.168.1.2:8000/chats");
+      const res = await fetch(`${BACKEND_URL}/chats`);
       const data = await res.json();
       setChats(data);
     } catch (error) {
