@@ -1,5 +1,6 @@
 import { Stack } from "expo-router";
 import { useEffect } from "react";
+import AppScreen from "./components/AppScreen";
 import getSocket from "./src/socket";
 
 export default function RootLayout() {
@@ -21,10 +22,12 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    />
+    <AppScreen>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      />
+    </AppScreen>
   );
 }

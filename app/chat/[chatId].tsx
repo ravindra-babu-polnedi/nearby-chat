@@ -12,7 +12,6 @@ import {
     TextInput,
     View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import getSocket from "../src/socket";
 
 const socket = getSocket();
@@ -25,11 +24,12 @@ type Message = {
 };
 
 export default function ChatScreen() {
-  const { chatId, otherUserName } = useLocalSearchParams<{
+  const { chatId, otherUserName, name } = useLocalSearchParams<{
     chatId: string;
     otherUserName: string;
+    name: string;
   }>();
-
+  console.log("ChatScreen params:", { chatId, otherUserName, name });
   const [messages, setMessages] = useState<Message[]>([]);
   const [text, setText] = useState("");
   const flatListRef = useRef<FlatList>(null);
@@ -53,18 +53,18 @@ export default function ChatScreen() {
   function send() {
     if (!text.trim()) return;
 
-    const newMessage = {
-      sender: "me",
-      text,
-      timestamp: new Date().toISOString(),
-    };
+    // const newMessage = {
+    //   sender: "me",
+    //   text,
+    //   timestamp: new Date().toISOString(),
+    // };
 
     socket.emit("SEND_MESSAGE", {
       chatId,
       text,
     });
 
-    setMessages((prev) => [...prev, newMessage]);
+    // setMessages((prev) => [...prev, newMessage]);
     setText("");
 
     // Auto scroll to bottom
@@ -74,7 +74,7 @@ export default function ChatScreen() {
   }
 
   const renderMessage = ({ item }: { item: Message }) => {
-    const isMe = item.sender === "me";
+    const isMe = item.sender === name;
 
     return (
       <View
@@ -105,7 +105,7 @@ export default function ChatScreen() {
   };
 
   return (
-    <SafeAreaView style={chatStyles.container}>
+    <View style={chatStyles.container}>
       {/* Header */}
       <View style={chatStyles.header}>
         <Pressable onPress={() => router.back()} style={chatStyles.backButton}>
@@ -126,32 +126,32 @@ export default function ChatScreen() {
           </View>
         </View>
       </View>
-
-      {/* Messages */}
-      {/* Messages */}
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        keyExtractor={(_, i) => i.toString()}
-        renderItem={renderMessage}
-        contentContainerStyle={chatStyles.messagesList}
-        onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
-        keyboardDismissMode="interactive"
-        keyboardShouldPersistTaps="handled"
-        ListEmptyComponent={
-          <View style={chatStyles.emptyState}>
-            <Text style={chatStyles.emptyEmoji}>💬</Text>
-            <Text style={chatStyles.emptyText}>No messages yet</Text>
-            <Text style={chatStyles.emptySubtext}>Start the conversation!</Text>
-          </View>
-        }
-      />
-
-      {/* Input (keyboard-aware ONLY) */}
       <KeyboardAvoidingView
+        style={{ flex: 1, paddingBottom: 24 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
       >
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          keyExtractor={(_, i) => i.toString()}
+          renderItem={renderMessage}
+          contentContainerStyle={chatStyles.messagesList}
+          onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
+          keyboardDismissMode="interactive"
+          keyboardShouldPersistTaps="handled"
+          ListEmptyComponent={
+            <View style={chatStyles.emptyState}>
+              <Text style={chatStyles.emptyEmoji}>💬</Text>
+              <Text style={chatStyles.emptyText}>No messages yet</Text>
+              <Text style={chatStyles.emptySubtext}>
+                Start the conversation!
+              </Text>
+            </View>
+          }
+        />
+        {/* Messages + Input (keyboard-aware zone) */}
+
+        {/* Input (keyboard-aware ONLY) */}
         <View style={chatStyles.inputContainer}>
           <TextInput
             value={text}
@@ -175,7 +175,7 @@ export default function ChatScreen() {
           </Pressable>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 

@@ -2,11 +2,11 @@ import * as Location from "expo-location";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Animated,
-    StyleSheet,
-    Text,
-    View,
+  ActivityIndicator,
+  Animated,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import getSocket from "./src/socket";
 
@@ -66,9 +66,18 @@ export default function MatchingScreen() {
       }
 
       setStatus("Getting your location...");
-      const loc = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.High,
-      });
+      let loc;
+      try {
+         loc = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.High,
+        });
+      
+      } catch (error) {
+        console.error("Error getting location:", error);
+        alert("Failed to get location");
+        router.back();
+        return;
+      }
 
       const { latitude, longitude } = loc.coords;
 
@@ -84,13 +93,6 @@ export default function MatchingScreen() {
         duration,
       });
 
-      socket.emit("JOIN_POOL", {
-        name,
-        latitude,
-        longitude,
-        radius,
-        duration,
-      });
 
       socket.emit("JOIN_POOL", {
         name,
@@ -103,7 +105,7 @@ export default function MatchingScreen() {
       socket.on("MATCH_FOUND", ({ chatId, otherUserName }) => {
         router.replace({
           pathname: `/chat/[chatId]`,
-          params: { otherUserName, chatId },
+          params: { otherUserName, chatId, name },
         });
       });
 

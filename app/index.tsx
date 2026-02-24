@@ -3,8 +3,6 @@ import { router } from "expo-router";
 import { useState } from "react";
 import {
   Keyboard,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -12,11 +10,21 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { generateAnonymousName } from "./helpers";
 
 export default function NameScreen() {
   const [name, setName] = useState("");
 
   function next() {
+    if(!name.trim()) {
+      const randomName = generateAnonymousName();
+      setName(randomName);
+      router.push({
+        pathname: "/setup",
+        params: { name: randomName },
+      });
+      return
+    }
     router.push({
       pathname: "/setup",
       params: { name },
@@ -28,61 +36,53 @@ export default function NameScreen() {
       colors={["#10b981", "#059669", "#047857"]}
       style={styles.gradient}
     >
-      <KeyboardAvoidingView
-        style={styles.keyboardView}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={styles.container}>
-            <View style={styles.content}>
-              {/* Header */}
-              <View style={styles.header}>
-                <Text style={styles.title}>Welcome! 👋</Text>
-                <Text style={styles.subtitle}>
-                  Let's get started by setting up your profile
-                </Text>
-              </View>
-
-              {/* Input Card */}
-              <View style={styles.card}>
-                <Text style={styles.label}>Your Name (Optional)</Text>
-                <TextInput
-                  value={name}
-                  onChangeText={setName}
-                  placeholder="Anonymous"
-                  placeholderTextColor="#9ca3af"
-                  style={styles.input}
-                  returnKeyType="done"
-                  onSubmitEditing={next}
-                />
-                <Text style={styles.hint}>
-                  You can remain anonymous if you prefer
-                </Text>
-              </View>
-
-              {/* Button */}
-              <Pressable
-                onPress={next}
-                style={({ pressed }) => [
-                  styles.button,
-                  pressed && styles.buttonPressed,
-                ]}
-              >
-                <Text style={styles.buttonText}>Continue</Text>
-              </Pressable>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.container}>
+          <View style={styles.content}>
+            {/* Header */}
+            <View style={styles.header}>
+              <Text style={styles.title}>Welcome! 👋</Text>
+              <Text style={styles.subtitle}>
+                Let's get started by setting up your profile
+              </Text>
             </View>
+
+            {/* Input Card */}
+            <View style={styles.card}>
+              <Text style={styles.label}>Your Name (Optional)</Text>
+              <TextInput
+                value={name}
+                onChangeText={setName}
+                placeholder="Anonymous"
+                placeholderTextColor="#9ca3af"
+                style={styles.input}
+                returnKeyType="done"
+                onSubmitEditing={next}
+              />
+              <Text style={styles.hint}>
+                You can remain anonymous if you prefer
+              </Text>
+            </View>
+
+            {/* Button */}
+            <Pressable
+              onPress={next}
+              style={({ pressed }) => [
+                styles.button,
+                pressed && styles.buttonPressed,
+              ]}
+            >
+              <Text style={styles.buttonText}>Continue</Text>
+            </Pressable>
           </View>
-        </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
+        </View>
+      </TouchableWithoutFeedback>
     </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   gradient: {
-    flex: 1,
-  },
-  keyboardView: {
     flex: 1,
   },
   container: {
